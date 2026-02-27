@@ -15,9 +15,9 @@ scalar *interfaces = {f};
 
 #include "view.h"
 
-const double Re = 0.00164;     // horizontal Reynolds
-const double Uv = 1;       // relative vertical velocity
-const double muv = 10. ; // relative viscosity of the vertical fluid
+const double Re = 0.000833;     // horizontal Reynolds
+const double Uv = 10;       // relative vertical velocity
+const double muv = 0.005 ; // relative viscosity of the vertical fluid
 const double Hv = 1.;       // relative vertical channel diameter
 #ifdef PECLET
 const double Pe = PECLET;
@@ -47,13 +47,13 @@ f[top] = 0.;
 u.n[embed] = dirichlet(0.);
 u.t[embed] = dirichlet(0.);
 
-const int maxlevel = 9;
+const int maxlevel = 12;
 
 face vector mut[];
 
 int main()
 {
-    L0 = 3.000001; // just to make sure that the solid boundaries do not exactly coincide with cell boundaries
+    L0 = 5.000001; // just to make sure that the solid boundaries do not exactly coincide with cell boundaries
     DT = HUGE;
     origin(-1.25, -L0 / 2.);
     N = 128;
@@ -81,8 +81,8 @@ event properties(i++)
     foreach_face()
     {
         mut.x[] = fm.x[] * ((muh - muV) * ((clamp(f[], 0, 1) + clamp(f[-1], 0, 1)) / 2.) + muV);
-#ifdef PECLET
-        CD.x[] = fm.x[] / Pe;
+#ifdef PECLET  
+    CD.x[] = fm.x[] / Pe;
 #endif
     }
 }
@@ -101,9 +101,9 @@ event tracer_diffusion(i++)
 }
 #endif // PECLET
 
-event adapt(t = 2. / Uv; i++)
+event adapt(t = 5. ; i++)
 {
-    const double mmax = 1e-2, fmax = 1e-2, uemax = 0.1;
+    const double mmax = 1e-2, fmax = 1e-2, uemax = 0.5;
     adapt_wavelet({cs, f, u}, (double[]){mmax, fmax, uemax, uemax}, maxlevel);
 }
 
@@ -116,7 +116,7 @@ event thread_width(i++)
     fprintf(stderr, "%g %g\n", t, sf / s);
 }
 
-event movie(t = 4. / Uv)
+event movie(t = 10.)
 {
     view(tx = -0.118, ty = -0.000, tz = -3.038,
          width = 918, height = 890);
